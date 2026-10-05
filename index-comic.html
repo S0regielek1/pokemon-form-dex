@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja" data-skin="comic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffd91a">
+  <meta name="description" content="全国図鑑No.1〜1025の原種と姿違いを、画像・タグ・予測変換付きの検索で探せる図鑑。">
+  <title>姿違い対応ポケモン図鑑（コミック風）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="comic.css?v=4">
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">POKÉMON FORM DEX</div>
+    <nav class="view-switch" aria-label="表示の切り替え"><span class="view-switch-label">表示</span><a href="index-v2.html">カード</a><a href="index-comic.html" aria-current="page">一覧</a></nav>
+    <h1>姿違い対応ポケモン図鑑</h1>
+    <p>原種の行をクリックすると、その下に姿違いが開きます。名前・番号・姿名・タイプ・タグで絞り込めます。</p>
+  </header>
+
+  <main>
+    <section class="panel result-summary" aria-live="polite">
+      <div id="summary-main" class="summary-main">データを読み込み中…</div>
+      <div id="summary-sub" class="summary-sub"></div>
+      <div id="target-list" class="target-list" aria-label="対象一覧"></div>
+    </section>
+
+    <section class="panel search-panel" aria-label="検索と絞り込み">
+      <label for="search-input">名前・番号・姿名・タグ・タイプで探す</label>
+      <div id="summary-compact" class="summary-compact" aria-hidden="true"></div>
+      <div id="active-conditions" class="active-conditions" aria-live="polite"></div>
+      <div class="search-box">
+        <input id="search-input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" spellcheck="false"
+               placeholder="例：あろーら、リザードンX、No.25、メガ"
+               role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest-list" aria-haspopup="listbox">
+        <div id="suggest-list" class="suggest-list" role="listbox" aria-label="検索候補" hidden></div>
+      </div>
+
+      <div class="quick-options">
+        <label><input id="all-forms" type="checkbox"> 全姿表示</label>
+        <label><input id="show-review" type="checkbox" checked> 要確認候補も表示</label>
+        <label><input id="show-parents" type="checkbox"> 条件に合わない親も表示</label>
+        <button id="reset-all" class="secondary-button" type="button">条件をリセット</button>
+      </div>
+
+      <details class="advanced-filters">
+        <summary>タイプ・タグで絞り込む</summary>
+        <div class="filter-group">
+          <div class="filter-title">タイプ
+            <span class="type-mode" role="radiogroup" aria-label="タイプの組み合わせ方">
+              <label><input type="radio" name="type-mode" value="any" checked> いずれかを含む</label>
+              <label><input type="radio" name="type-mode" value="all"> すべてを含む</label>
+            </span>
+          </div>
+          <div id="type-chips" class="chips" role="group" aria-label="タイプで絞り込み"></div>
+        </div>
+        <div id="tag-filters"></div>
+        <p class="filter-note">タグは押すたびに「絞り込む（黄）→ 除外する（赤）→ 解除」と切り替わります。タグ横の数字は、ほかの系統の条件を保ったまま、そのタグだけを選んだときの姿の数です。違う系統どうしは「かつ」、同じ系統の中は「または」で絞り込みます。</p>
+      </details>
+    </section>
+
+    <section class="panel table-panel">
+      <div id="error" class="error" hidden></div>
+      <p class="table-legend">空白（スマホでは「＝」）＝原種と同じ種族値（実際の数値は「詳細」で確認できます）。橙の斜体＝固定の実数値から換算した値。<span class="legend-wide">表は左右にスクロールできます。</span></p>
+      <div id="table-wrap" class="table-wrap" tabindex="0" role="region" aria-label="図鑑の一覧">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-no">No.</th>
+              <th class="col-name">名前・姿</th>
+              <th class="col-tags">タグ</th>
+              <th class="col-types">タイプ</th>
+              <th>H</th><th>A</th><th>B</th><th>C</th><th>D</th><th>S</th><th>合計</th>
+              <th class="col-detail">詳細</th>
+            </tr>
+          </thead>
+          <tbody id="dex-rows"></tbody>
+        </table>
+      </div>
+      <div id="empty" class="empty" hidden>
+        条件に一致する姿は0件です。
+        <button id="empty-reset" class="secondary-button" type="button">条件をリセット</button>
+      </div>
+    </section>
+  </main>
+
+  <aside id="detail-panel" class="detail-panel" role="dialog" aria-modal="false" aria-labelledby="detail-title" hidden>
+    <button id="detail-close" class="secondary-button detail-close" type="button">閉じる（Esc）</button>
+    <div id="detail-body"></div>
+  </aside>
+
+  <footer>
+    <div id="footer-meta">データを読み込み中…</div>
+    <div class="footer-rights">
+      <p>本サイトは個人が作成した非公式のファンサイトです。株式会社ポケモン、任天堂株式会社、株式会社クリーチャーズ、株式会社ゲームフリークとは関係ありません。</p>
+      <p>©Pokémon. ©Nintendo/Creatures Inc./GAME FREAK inc.<br>ポケットモンスター・ポケモン・Pokémonは任天堂・クリーチャーズ・ゲームフリークの登録商標です。ポケモンの画像と名称の権利は、それぞれの権利者に帰属します。</p>
+      <p>「チャンピオンズ内定」タグは『Pokémon Champions』のレギュレーションM-C時点の情報です。以降の更新は予定していません。</p>
+      <p>データ: <a href="https://pokeapi.co/">PokéAPI</a>（BSD 3-Clause）・<a href="https://github.com/PokeAPI/sprites">PokéAPI sprites</a>・<a href="https://github.com/smogon/pokemon-showdown">Pokémon Showdown</a>（MIT）。PokéAPI は公式の図鑑ではなく、参照データ源として扱っています。ライセンスの全文は <a href="THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a> にあります。</p>
+    </div>
+  </footer>
+
+  <script src="data/generated/dex-data.js?v=7"></script>
+  <script src="data/generated/search-index.js?v=7"></script>
+  <script src="lib/dexcore.js?v=2"></script>
+  <script src="app.js?v=7"></script>
+  <script src="view-switch.js?v=1"></script>
+</body>
+</html>
