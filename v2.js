@@ -31,7 +31,7 @@
     "あく": "dark", "はがね": "steel", "フェアリー": "fairy",
   };
   const QUIET_TAGS = new Set(["rep", "included", "variant", "battleonly"]);
-  const IMAGE_STATE_LABEL = { confirmed: "対応確認済み", substitute: "代用（原種の画像）", none: "なし（要確認）", absent: "なし（取得元に画像が無い）" };
+  const IMAGE_STATE_LABEL = { confirmed: "対応確認済み", substitute: "代用（原種の画像）", none: "なし（要確認）", absent: "なし（取得元に画像が無い）", fanmade: "ファン自作のドット絵（公式の画像ではありません）" };
   // 姿の一覧で見出しを付ける系統の優先順（先に挙げた系統のタグを持つ姿は、その見出しに入る）。
   const SECTION_GROUPS = ["change", "region", "attr", "gender", "usage"];
 

@@ -15,6 +15,10 @@
 | [PokéAPI sprites](https://github.com/PokeAPI/sprites) | 姿の画像（1,630件） | リポジトリは CC0 1.0。ただし同リポジトリの表記どおり、画像の権利は The Pokémon Company にあります |
 | [Pokémon Showdown](https://github.com/smogon/pokemon-showdown) | 種族値の照合、オーガポンのテラスタル4姿のデータと画像 | MIT（全文は下記） |
 
+## 本図鑑で作った画像
+
+スターモービル5姿（ブロロロームのスターモービル）は取得元に画像が無いため、本図鑑でドット絵を作りました（`assets/fanmade/`）。公式の画像ではありません。キャラクターの権利は株式会社ポケモン等の権利者に帰属します。
+
 ## PokéAPI のライセンス（BSD 3-Clause）
 
 ```

@@ -32,7 +32,7 @@
   };
   // 行に毎回出すと煩雑なタグ（代表・採用は既定の状態なので行には出さない）。
   const QUIET_TAGS = new Set(["rep", "included"]);
-  const IMAGE_STATE_LABEL = { confirmed: "対応確認済み", substitute: "代用（原種の画像）", none: "なし（要確認）", absent: "なし（取得元に画像が無い）" };
+  const IMAGE_STATE_LABEL = { confirmed: "対応確認済み", substitute: "代用（原種の画像）", none: "なし（要確認）", absent: "なし（取得元に画像が無い）", fanmade: "ファン自作のドット絵（公式の画像ではありません）" };
 
   const entries = data.entries;
   const entryById = new Map(entries.map((entry) => [entry.id, entry]));
