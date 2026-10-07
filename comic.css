@@ -328,3 +328,26 @@ html[data-skin="comic"] .search-panel > label { margin-bottom: 4px; }
 /* 詳細パネルの画像を大きく */
 html[data-skin="comic"] .detail-panel img { width: min(260px, 100%); height: auto; aspect-ratio: 1; object-fit: contain; }
 @media (max-width: 720px) { html[data-skin="comic"] .hero p { display: none; } }
+
+/* ===== スマホ（幅720px以下）の調整 2026-10-07 =====
+   ・カード画面の「表示 カード／一覧」切り替えが縮んで「一覧」が見えなくなっていたので、縮ませない
+   ・カードを1行に3枚並べる（文字・余白・スタンプを小さくし、英名と姿の小さな画像の列は隠す。姿の数は「姿×n」で分かる） */
+@media (max-width: 720px) {
+  html[data-skin="comic"] .masthead-top { align-items: flex-start; }
+  html[data-skin="comic"] .masthead-top .view-switch { flex-shrink: 0; }
+  html[data-skin="comic"] .view-switch-label, html[data-skin="comic"] .view-switch a { white-space: nowrap; }
+  html[data-skin="comic"] .view-switch a { min-width: 56px; padding: 0 10px; }
+
+  html[data-skin="comic"] .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px; }
+  html[data-skin="comic"] .plate { gap: 3px; padding: 5px 5px 6px; border-width: 2.5px; box-shadow: 3px 3px 0 var(--ink); contain-intrinsic-size: 120px 175px; }
+  html[data-skin="comic"] .plate:hover { transform: none; box-shadow: 3px 3px 0 var(--ink); }
+  html[data-skin="comic"] .plate-head { min-height: 16px; }
+  html[data-skin="comic"] .no { font-size: 9.5px; padding: 0 4px; letter-spacing: 0; }
+  html[data-skin="comic"] .forms-stamp { top: 0; right: 0; width: 34px; height: 34px; font-size: 8px; }  /* 台紙の外へはみ出すと切れるので内側に置く */
+  html[data-skin="comic"] .forms-stamp b { font-size: 9px; }
+  html[data-skin="comic"] .mat { padding: 3px; border-width: 2px; }
+  html[data-skin="comic"] .name { margin-top: 1px; font-size: 12px; line-height: 1.25; }
+  html[data-skin="comic"] .sub, html[data-skin="comic"] .thumbs { display: none; }
+  html[data-skin="comic"] .types { gap: 2px; min-height: 0; }
+  html[data-skin="comic"] .plate .stamp { font-size: 9px; padding: 0 4px; line-height: 1.5; }
+}

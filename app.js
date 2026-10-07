@@ -66,6 +66,16 @@
   };
 
   const input = $("search-input");
+
+  // スマホ幅では検索欄の例を短くする（長い例は途中で切れるため）。短い例は HTML の data-placeholder-short に書く。
+  const placeholderLong = input.getAttribute("placeholder");
+  const placeholderShort = input.dataset.placeholderShort;
+  if (placeholderShort) {
+    const narrowScreen = window.matchMedia("(max-width: 720px)");
+    const applyPlaceholder = () => input.setAttribute("placeholder", narrowScreen.matches ? placeholderShort : placeholderLong);
+    applyPlaceholder();
+    narrowScreen.addEventListener("change", applyPlaceholder);
+  }
   const suggestList = $("suggest-list");
 
   function escapeHtml(value) {

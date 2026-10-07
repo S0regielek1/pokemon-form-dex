@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
   <link rel="stylesheet" href="styles.css?v=5">
-  <link rel="stylesheet" href="comic.css?v=4">
+  <link rel="stylesheet" href="comic.css?v=5">
 </head>
 <body>
   <header class="hero">
@@ -33,7 +33,7 @@
       <div id="active-conditions" class="active-conditions" aria-live="polite"></div>
       <div class="search-box">
         <input id="search-input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" spellcheck="false"
-               placeholder="例：あろーら、リザードンX、No.25、メガ"
+               placeholder="例：あろーら、リザードンX、No.25、メガ" data-placeholder-short="例：あろーら、No.25、メガ"
                role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest-list" aria-haspopup="listbox">
         <div id="suggest-list" class="suggest-list" role="listbox" aria-label="検索候補" hidden></div>
       </div>
@@ -104,7 +104,7 @@
   <script src="data/generated/dex-data.js?v=7"></script>
   <script src="data/generated/search-index.js?v=7"></script>
   <script src="lib/dexcore.js?v=2"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
   <script src="view-switch.js?v=1"></script>
 </body>
 </html>
