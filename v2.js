@@ -1,4 +1,4 @@
-// 姿違い対応ポケモン図鑑 v2「標本帖」の画面。
+// ポケモン全姿図鑑 v2「標本帖」の画面。
 // 絞り込み・集計・候補の計算は lib/dexcore.js（純関数）に任せ、ここでは状態の保持と描画だけを行う。
 // 旧デザイン（index.html / app.js）とは独立しており、同じデータ・画像・dexcore.js を共用する。
 (function () {
@@ -36,10 +36,29 @@
   const SECTION_GROUPS = ["change", "region", "attr", "gender", "usage"];
 
   const entries = data.entries;
-  const entryById = new Map(entries.map((entry) => [entry.id, entry]));
+
+  // 惜しくも不採用の姿（件数には入れない）。タグ「惜しくも不採用」で絞り込んだときだけ対象に加える。
+  const nearmissEntries = data.nearmiss || [];
+  const nearmissTag = data.tags.find((tag) => tag.id === "nearmiss") || null;
+  function nearmissOn() {
+    const selected = nearmissTag && state.cond.tags ? state.cond.tags[nearmissTag.group] : null;
+    return Array.isArray(selected) && selected.includes("nearmiss");
+  }
+  /** 絞り込み・集計の対象。ふだんは採用した姿だけで、「惜しくも不採用」を選んだときだけ不採用の姿も含める。 */
+  function pool() { return nearmissOn() ? entries.concat(nearmissEntries) : entries; }
+  /** タグごとの件数。「惜しくも不採用」の数は、選ぶ前でも不採用の姿から数える。 */
+  function tagCounts() {
+    const counts = core.facetCounts(pool(), state.cond, data.tags);
+    if (nearmissTag && !nearmissOn()) {
+      counts.nearmiss = core.facetCounts(entries.concat(nearmissEntries), state.cond, [nearmissTag]).nearmiss;
+    }
+    return counts;
+  }
+  const entryById = new Map(entries.concat(nearmissEntries).map((entry) => [entry.id, entry]));
   const tagById = new Map(data.tags.map((tag) => [tag.id, tag]));
   const usedTags = new Set();
   entries.forEach((entry) => entry.tags.forEach((tagId) => usedTags.add(tagId)));
+  if (nearmissEntries.length > 0) usedTags.add("nearmiss");
   const hasReview = entries.some((entry) => entry.status === "needs_review");
   const hasStatusFlags = hasReview || usedTags.has("img_check") || usedTags.has("name_check");
   $("show-review").parentElement.hidden = !hasReview;
@@ -360,7 +379,7 @@
   });
 
   function renderFilters() {
-    const typeCount = core.typeCounts(entries, state.cond, data.types);
+    const typeCount = core.typeCounts(pool(), state.cond, data.types);
     $("type-chips").innerHTML = data.types.map((type) => {
       const pressed = state.cond.types.includes(type);
       return `<button type="button" class="stamp type-${TYPE_CLASS[type] || "normal"}${typeCount[type] === 0 ? " zero" : ""}" `
@@ -369,7 +388,7 @@
 
     // タグの一覧は開いているときだけ作る（閉じている間は計算を省く）。
     if ($("advanced-filters").hidden) return;
-    const tagCount = core.facetCounts(entries, state.cond, data.tags);
+    const tagCount = tagCounts();
     $("tag-filters").innerHTML = data.tagGroups.map((group) => {
       const tags = data.tags.filter((tag) => tag.group === group.id && usedTags.has(tag.id));
       if (tags.length === 0 || (group.id === "status" && !hasStatusFlags)) return "";
@@ -517,7 +536,7 @@
 
   function render() {
     const filtering = core.isFiltering(state.cond);
-    state.matched = core.filterEntries(entries, state.cond);
+    state.matched = core.filterEntries(pool(), state.cond);
     state.matchedIds = new Set(state.matched.map((entry) => entry.id));
     // 絞り込み中と全姿表示のときは姿を一枚ずつ並べ、それ以外は代表だけを並べる。
     state.list = filtering || state.allForms ? state.matched : state.matched.filter((entry) => entry.rep === true);

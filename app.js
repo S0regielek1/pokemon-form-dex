@@ -1,4 +1,4 @@
-// 姿違い対応ポケモン図鑑の画面。絞り込み・集計・候補の計算は lib/dexcore.js（純関数）に任せ、
+// ポケモン全姿図鑑の画面。絞り込み・集計・候補の計算は lib/dexcore.js（純関数）に任せ、
 // ここでは状態の保持と DOM の描画だけを行う。
 (function () {
   "use strict";
@@ -35,10 +35,29 @@
   const IMAGE_STATE_LABEL = { confirmed: "対応確認済み", substitute: "代用（原種の画像）", none: "なし（要確認）", absent: "なし（取得元に画像が無い）", fanmade: "ファン自作のドット絵（公式の画像ではありません）" };
 
   const entries = data.entries;
-  const entryById = new Map(entries.map((entry) => [entry.id, entry]));
+
+  // 惜しくも不採用の姿（件数には入れない）。タグ「惜しくも不採用」で絞り込んだときだけ対象に加える。
+  const nearmissEntries = data.nearmiss || [];
+  const nearmissTag = data.tags.find((tag) => tag.id === "nearmiss") || null;
+  function nearmissOn() {
+    const selected = nearmissTag && state.cond.tags ? state.cond.tags[nearmissTag.group] : null;
+    return Array.isArray(selected) && selected.includes("nearmiss");
+  }
+  /** 絞り込み・集計の対象。ふだんは採用した姿だけで、「惜しくも不採用」を選んだときだけ不採用の姿も含める。 */
+  function pool() { return nearmissOn() ? entries.concat(nearmissEntries) : entries; }
+  /** タグごとの件数。「惜しくも不採用」の数は、選ぶ前でも不採用の姿から数える。 */
+  function tagCounts() {
+    const counts = core.facetCounts(pool(), state.cond, data.tags);
+    if (nearmissTag && !nearmissOn()) {
+      counts.nearmiss = core.facetCounts(entries.concat(nearmissEntries), state.cond, [nearmissTag]).nearmiss;
+    }
+    return counts;
+  }
+  const entryById = new Map(entries.concat(nearmissEntries).map((entry) => [entry.id, entry]));
   const tagById = new Map(data.tags.map((tag) => [tag.id, tag]));
   const usedTags = new Set();
   entries.forEach((entry) => entry.tags.forEach((tagId) => usedTags.add(tagId)));
+  if (nearmissEntries.length > 0) usedTags.add("nearmiss");
   // 要確認の姿が1件も無いときは、要確認に関する表示（切り替え・内訳・確認状態のタグ）を出さない。
   // データを作り直して要確認の姿が出てきたら、自動で表示が戻る。
   const hasReview = entries.some((entry) => entry.status === "needs_review");
@@ -329,14 +348,14 @@
   });
 
   function renderFilters() {
-    const typeCount = core.typeCounts(entries, state.cond, data.types);
+    const typeCount = core.typeCounts(pool(), state.cond, data.types);
     $("type-chips").innerHTML = data.types.map((type) => {
       const pressed = state.cond.types.includes(type);
       return `<button type="button" class="chip${typeCount[type] === 0 ? " zero" : ""}" data-type="${escapeHtml(type)}" `
         + `aria-pressed="${pressed}">${escapeHtml(type)}<span class="count">${typeCount[type]}</span></button>`;
     }).join("");
 
-    const tagCount = core.facetCounts(entries, state.cond, data.tags);
+    const tagCount = tagCounts();
     $("tag-filters").innerHTML = data.tagGroups.map((group) => {
       const tags = data.tags.filter((tag) => tag.group === group.id && usedTags.has(tag.id));
       if (tags.length === 0 || (group.id === "status" && !hasStatusFlags)) return "";
@@ -554,7 +573,7 @@
 
   /** 行の一覧を作り直して表だけを描き直す（開閉のように、件数やフィルターが変わらない操作でも使う）。 */
   function renderTable(matched, filtering) {
-    let rows = core.buildRows(entries, matched, {
+    let rows = core.buildRows(pool(), matched, {
       filtering: filtering,
       allForms: state.allForms,
       open: state.open,
@@ -576,7 +595,7 @@
 
   function render() {
     const filtering = core.isFiltering(state.cond);
-    const matched = core.filterEntries(entries, state.cond);
+    const matched = core.filterEntries(pool(), state.cond);
     state.matched = matched;
     renderConditions();
     renderFilters();
@@ -629,7 +648,7 @@
         + `<td>${STAT_KEYS.reduce((sum, key) => sum + entry.stats[key], 0)}</td></tr></tbody></table>`
       : "<p>種族値: 不明</p>";
     const same = parent && core.sameStats(entry.stats, parent.stats) ? "（原種と同じ種族値）" : "";
-    const tagText = entry.tags.filter((tagId) => tagById.has(tagId))
+    const tagText = entry.tags.filter((tagId) => tagById.has(tagId) && !QUIET_TAGS.has(tagId))
       .map((tagId) => tagById.get(tagId).label).join("、");
     $("detail-body").innerHTML =
       `${imageTag(entry, 144)}<h2 id="detail-title">${escapeHtml(entry.name)}</h2>`
@@ -641,7 +660,7 @@
       + (entry.fixed ? `<dt>固定の実数値</dt><dd>Lv.${entry.fixed.level}: `
         + STAT_KEYS.map((key) => `${key}${entry.fixed.stats[key]}`).join(" ") + "（上の表は種族値への換算）</dd>" : "")
       + `<dt>特性</dt><dd>${escapeHtml(entry.abilities.join("、") || "未取得")}</dd>`
-      + `<dt>タグ</dt><dd>${escapeHtml(tagText)}</dd>`
+      + (tagText ? `<dt>タグ</dt><dd>${escapeHtml(tagText)}</dd>` : "")
       + (entry.status === "needs_review" ? "<dt>状態</dt><dd>要確認</dd>" : "")
       + (entry.imgState !== "confirmed" ? `<dt>画像</dt><dd>${IMAGE_STATE_LABEL[entry.imgState] || entry.imgState}</dd>` : "")
       + `<dt>取得元</dt><dd>${escapeHtml(entry.sources.join("、"))}</dd>`
