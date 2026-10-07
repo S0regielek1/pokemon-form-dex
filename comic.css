@@ -93,8 +93,9 @@ html[data-skin="comic"] .masthead {
 html[data-skin="comic"] .kicker { display: inline-block; padding: 1px 10px; background: var(--ink); color: var(--yellow); font-family: var(--font-round); font-weight: 900; font-size: 11px; letter-spacing: .12em; }
 html[data-skin="comic"] h1 { font-family: var(--font-comic); font-weight: 400; letter-spacing: .02em; color: var(--ink); text-shadow: 3px 3px 0 #fff; font-size: clamp(28px, 4.6vw, 52px); }
 html[data-skin="comic"] .masthead-count { gap: 14px; }
-html[data-skin="comic"] .masthead-count div { padding: 6px 14px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 50% / 40%; box-shadow: 3px 3px 0 var(--ink); transform: rotate(-3deg); }
-html[data-skin="comic"] .masthead-count div:nth-child(2) { transform: rotate(2.5deg); background: var(--pink); }
+/* 収録数（1025種・1637姿）は四角い枠で囲む（2026-10-07 利用者の指摘でフキダシから変更） */
+html[data-skin="comic"] .masthead-count div { padding: 4px 14px 6px; background: #fff; border: 3px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); }
+html[data-skin="comic"] .masthead-count div:nth-child(2) { background: var(--pink); }
 html[data-skin="comic"] .masthead-count dd { font-family: var(--font-comic); font-size: clamp(24px, 3.2vw, 36px); }
 html[data-skin="comic"] .masthead-count dt { color: var(--ink); font-family: var(--font-round); font-weight: 900; white-space: nowrap; }
 html[data-skin="comic"] .masthead-count div { white-space: nowrap; flex-shrink: 0; }
@@ -350,4 +351,8 @@ html[data-skin="comic"] .detail-panel img { width: min(260px, 100%); height: aut
   html[data-skin="comic"] .sub, html[data-skin="comic"] .thumbs { display: none; }
   html[data-skin="comic"] .types { gap: 2px; min-height: 0; }
   html[data-skin="comic"] .plate .stamp { font-size: 9px; padding: 0 4px; line-height: 1.5; }
+
+  /* 一覧表: 「詳細」ボタンが1列分の幅に入りきらず左の枠線が切れていたので、2列分の幅を使う */
+  html[data-skin="comic"] .name-cell { grid-column: 1 / 6; }
+  html[data-skin="comic"] #dex-rows td:last-child { grid-column: 6 / 8; overflow: visible; padding-right: 4px; }
 }
