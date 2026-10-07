@@ -717,10 +717,12 @@
   const counts = data.meta.counts;
   $("count-species").textContent = data.meta.nationalDexMax;
   $("count-forms").textContent = counts.forms;
+  // 見る人向けの表記（収録数と時点）。除外・別枠などの作業用の数は README とレポートで確認する。
+  const builtDate = String(data.meta.generatedAt || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
   $("footer-meta").textContent =
-    `データ生成: ${data.meta.generatedAt} ／ 登録されている姿 ${counts.forms}件`
-    + (hasReview ? `（採用${counts.included}・要確認${counts.needsReview}）` : "")
-    + `・除外${counts.excluded}件・別枠の候補${counts.special}件`;
+    `収録 ${counts.species}種・${counts.forms}姿`
+    + (hasReview ? `（うち要確認${counts.needsReview}）` : "")
+    + (builtDate ? `（${Number(builtDate[1])}年${Number(builtDate[2])}月${Number(builtDate[3])}日時点）` : "");
 
   // 表示の切り替え（カード⇔一覧）で検索条件を引き継ぐための窓口。view-switch.js が使う。
   window.DexApp = Object.assign(window.DexApp || {}, {
